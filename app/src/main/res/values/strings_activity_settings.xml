@@ -4,9 +4,13 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_title_location">Location</string>
-    <string name="pref_default_location">90210</string>
+    <string name="pref_location_title">Location</string>
+    <string name="pref_location_default">90210</string>
     <string name="pref_location_key">location_key</string>
+
+    <string name="pref_unit_title">Temperature Units</string>
+    <string name="pref_unit_default">Metric</string>
+    <string name="pref_unit_key">unit_key</string>
 
     <string name="pref_header_general">General</string>
 

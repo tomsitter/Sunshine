@@ -1,9 +1,11 @@
 package com.tomsitter.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +30,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -54,22 +55,13 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        String[] forecastArray = {
-                "Today - Sunny - 88/63",
-                "Tomorrow - Cloudy - 80/40",
-                "Wednesday - Cloudy - 86/60",
-                "Thursday - Mostly Sunny - 88/70"
-        };
-
-        ArrayList<String> weekForecast = new ArrayList<String>( Arrays.asList(forecastArray) );
-
-        rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
         mForecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                weekForecast);
+                new ArrayList<String>());
+
+        rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
 
@@ -97,6 +89,12 @@ public class ForecastFragment extends Fragment {
        super.onCreateOptionsMenu(menu,inflater);
     }
 
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -104,10 +102,17 @@ public class ForecastFragment extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            new FetchWeatherTask().execute("90210");
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void updateWeather() {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = sharedPref.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_default_location));
+        new FetchWeatherTask().execute(location);
     }
 
 
@@ -233,6 +238,10 @@ public class ForecastFragment extends Fragment {
     }
 
 
+    private long toFahrenheit(double temp) {
+        return Math.round(temp*9.0/5.0+32);
+    }
+
     /**
      * Prepare the weather high/lows for presentation.
      */
@@ -240,7 +249,15 @@ public class ForecastFragment extends Fragment {
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String unit = sharedPref.getString(getString(R.string.pref_unit_key),
+                getString(R.string.pref_unit_default));
 
+
+        if (unit.equals("fahrenheit")) {
+            roundedHigh = toFahrenheit(high);
+            roundedLow = toFahrenheit(low);
+        }
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
     }
