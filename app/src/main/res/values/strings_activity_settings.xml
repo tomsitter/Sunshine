@@ -9,7 +9,8 @@
     <string name="pref_location_key">location_key</string>
 
     <string name="pref_unit_title">Temperature Units</string>
-    <string name="pref_unit_default">Metric</string>
+    <string name="pref_unit_metric">metric</string>
+    <string name="pref_unit_imperial">imperial</string>
     <string name="pref_unit_key">unit_key</string>
 
     <string name="pref_header_general">General</string>
